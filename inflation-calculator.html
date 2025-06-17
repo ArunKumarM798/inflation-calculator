@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Inflation Calculator</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .calculator-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    table {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    td {
+      padding: 8px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .results {
+      margin-top: 20px;
+    }
+    .results p {
+      font-weight: bold;
+    }
+    canvas {
+      margin-top: 20px;
+      width: 100% !important;
+      height: auto !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator-container">
+    <h2>Inflation Calculator</h2>
+    <table>
+      <tr>
+        <td>Current Cost (₹):</td>
+        <td><input type="number" id="currentCost" value="100000"></td>
+      </tr>
+      <tr>
+        <td>Rate of Inflation (p.a.) (%):</td>
+        <td><input type="number" id="inflationRate" value="6.5" step="0.1"></td>
+      </tr>
+      <tr>
+        <td>Time Period (Years):</td>
+        <td><input type="number" id="years" value="5"></td>
+      </tr>
+      <tr>
+        <td colspan="2"><button onclick="calculate()">Calculate</button></td>
+      </tr>
+    </table>
+    <div class="results" id="results" style="display:none;">
+      <p id="current"></p>
+      <p id="increase"></p>
+      <p id="future"></p>
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+  <script>
+    function formatINR(x) {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR'
+      }).format(x);
+    }
+
+    function calculate() {
+      const cost = parseFloat(document.getElementById('currentCost').value);
+      const rate = parseFloat(document.getElementById('inflationRate').value);
+      const years = parseFloat(document.getElementById('years').value);
+
+      const future = cost * Math.pow(1 + rate / 100, years);
+      const increase = future - cost;
+
+      document.getElementById('current').innerText = "Current Cost: " + formatINR(cost);
+      document.getElementById('increase').innerText = "Cost Increase: " + formatINR(increase);
+      document.getElementById('future').innerText = "Future Cost: " + formatINR(future);
+      document.getElementById('results').style.display = "block";
+
+      const ctx = document.getElementById('chart').getContext('2d');
+      if (window.chartInstance) window.chartInstance.destroy();
+      window.chartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Current Cost', 'Cost Increase'],
+          datasets: [{
+            data: [cost, increase],
+            backgroundColor: ['green', 'blue']
+          }]
+        },
+        options: {
+          responsive: true,
+          legend: {
+            position: 'top'
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
